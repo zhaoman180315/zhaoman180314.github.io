@@ -132,7 +132,7 @@
 
 
 
-<meta name="generator" content="Hexo 4.2.0"></head>
+</head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
@@ -260,7 +260,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/17/ddd/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/19/%E6%9C%8D%E5%8A%A1%E7%89%B9%E6%80%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="zhaoman">
@@ -279,7 +279,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/06/17/ddd/" itemprop="url">ddd</a></h1>
+                <a class="post-title-link" href="/2020/06/19/%E6%9C%8D%E5%8A%A1%E7%89%B9%E6%80%A7/" itemprop="url">服务特性</a></h1>
         
 
         <div class="post-meta">
@@ -291,8 +291,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-17T10:06:29+08:00">
-                2020-06-17
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-19T11:10:45+08:00">
+                2020-06-19
               </time>
             
 
@@ -310,8 +310,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/06/17/ddd/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2020/06/17/ddd/" itemprop="commentCount"></span>
+                <a href="/2020/06/19/%E6%9C%8D%E5%8A%A1%E7%89%B9%E6%80%A7/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2020/06/19/%E6%9C%8D%E5%8A%A1%E7%89%B9%E6%80%A7/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -341,8 +341,320 @@
       
         
           
-            <p>f</p>
-<p><img src="/image/0.3.png" alt="0.3"></p>
+            <p><a href="0.1">蓝牙服务与特性</a></p>
+<h1 id="添加蓝牙服务与特性"><a href="#添加蓝牙服务与特性" class="headerlink" title="添加蓝牙服务与特性"></a>添加蓝牙服务与特性</h1><p>代码如下：</p>
+<html>
+
+  <head>
+
+<pre><code>&lt;script&gt;</code></pre><p>​    var  selected_device;</p>
+<p>​    var  connected_server;</p>
+<p>​    var  connected=false;</p>
+<p>​    var  services_discovered=false;</p>
+<p>​        //在第5课上添加以下内容</p>
+<p>​    // presence of services and characteristics </p>
+<p>​    var has_accelerometer_service = false; </p>
+<p>​    var has_accelerometer_data = false; </p>
+<p>​    var has_led_service = false;</p>
+<p>​    var has_led_matrix_state = false; </p>
+<p>​    var has_device_information_service = false; </p>
+<p>​    var has_model_name_string = false; </p>
+<p>​    var has_temperature_service =false;  //温度</p>
+<p>​    var has_tem_temperature = false; </p>
+<p>​     // service UUIDs </p>
+<p>​    ACCELEROMETER_SERVICE = ‘e95d0753-251d-470a-a062-fa1922dfa9a8’; </p>
+<p>​    LED_SERVICE = ‘e95dd91d-251d-470a-a062-fa1922dfa9a8’; </p>
+<p>​    DEVICE_INFORMATION_SERVICE = ‘0000180a-0000-1000-8000-00805f9b34fb’;</p>
+<p>​    TEMPERATURE_SERVICE = ‘e95d6100-251d-470a-a062-fa1922dfa9a8’; </p>
+<p>​    // characteristic UUIDs </p>
+<p>​    ACCELEROMETER_DATA = ‘e95dca4b-251d-470a-a062-fa1922dfa9a8’; </p>
+<p>​    LED_MATRIX_STATE = ‘e95d7b77-251d-470a-a062-fa1922dfa9a8’; </p>
+<p>​    MODEL_NUMBER_STRING = ‘00002a24-0000-1000-8000-00805f9b34fb’;</p>
+<p>​    TEM_TEMPERATURE = ‘e95d1b25-251d-470a-a062-fa1922dfa9a8’; </p>
+<p>​    // cached characteristics var accelerometer_data; </p>
+<p>​    var led_matrix_state; </p>
+<p>​    var model_number_string;</p>
+<p>​    var accelerometer_data;</p>
+<p>​    var tem_temperature;  </p>
+<p>​     //</p>
+<p>​    var service_count;</p>
+<p>​     var services_discovered;</p>
+<p>​     var characteristics_discovered; </p>
+<p>​     var characteristic_count ;        </p>
+<p>​     function discoverOrdisconnectDevices()</p>
+<p>​    {</p>
+<p>​      console.log(“discoverOrdisconnectDevices”);</p>
+<p>​      if(!connected)</p>
+<p>​      discoverDevices();</p>
+<p>​      else</p>
+<p>​      {</p>
+<p>​        selected_device.gatt.disconnect();</p>
+<p>​      }</p>
+<p>​    }</p>
+<p>​    </p>
+<p>​    function onDisconnected()</p>
+<p>​    {</p>
+<p>​      console.log(“onDisconnected”);</p>
+<p>​      resetUI();</p>
+<p>​    }</p>
+<p>​    //function input.temperature(): number;</p>
+<p>​    function discoverDevices()</p>
+<p>​    { </p>
+<p>​      console.log(“discoverDevices”);</p>
+<p>​      var options = {acceptAllDevices:true,</p>
+<p>​        optionalServices: [DEVICE_INFORMATION_SERVICE, ACCELEROMETER_SERVICE, LED_SERVICE,TEMPERATURE_SERVICE] //在第5节课上添加</p>
+<p>​      }    //发现所有周边蓝牙设备</p>
+<p>​      </p>
+<p>​      navigator.bluetooth.requestDevice(options)</p>
+<p>​      .then(device =&gt; {</p>
+<p>​        console.log(‘&gt; Name:’ + device.name);</p>
+<p>​        console.log(‘&gt; Id:’ + device.id);</p>
+<p>​        console.log(‘&gt; Connected:’ + device.gatt.connected);</p>
+<p>​        selected_device = device;</p>
+<p>​        console.log(selected_device);</p>
+<p>​        connect();</p>
+<p>​        })</p>
+<p>​      .catch(error =&gt; {</p>
+<p>​        alert(‘ERROR’ +error);</p>
+<p>​        console.log(‘ERROR’ +error);</p>
+<p>​        });    </p>
+<p>​    }    </p>
+<p>​    function connect()</p>
+<p>​    {</p>
+<p>​      console.log(“connecting”);</p>
+<p>​      selected_device.gatt.connect()</p>
+<p>​      .then(</p>
+<p>​        function (server)</p>
+<p>​        {</p>
+<p>​          console.log(“Connected to” + server.device.id);</p>
+<p>​          console.log(“Connected “ + server.connected);</p>
+<p>​          selected_device.addEventListener(‘gattserverdisconnected’,onDisconnected);</p>
+<p>​          connected_server =server;</p>
+<p>​          discoverSvcsAndChars(); //在第5课基础上添加的函数</p>
+<p>​          setConnectedStatus(true);</p>
+<p>​        },</p>
+<p>​        function (error)</p>
+<p>​        {</p>
+<p>​          console.log(“ERROR:could not connct-“ + error);</p>
+<p>​          alert(“ERROR:could not connct-“ + error);</p>
+<p>​          setConnectedStatus(false);</p>
+<p>​        }</p>
+<p>​      );</p>
+<p>​    }</p>
+<p>​    function setConnectedStatus(status)</p>
+<p>​    {</p>
+<p>​      connected=status;</p>
+<p>​      document.getElementById(‘status_connected’).innerHTML = status;</p>
+<p>​      if(status==true)</p>
+<p>​      {</p>
+<p>​        document.getElementById(‘btn_scan’).innerHTML = “Disconnect”;</p>
+<p>​      }</p>
+<p>​      else</p>
+<p>​      {</p>
+<p>​        document.getElementById(‘btn_scan’).innerHTML = “Discover Devices”;</p>
+<p>​      }</p>
+<p>​    }</p>
+<p>​    function setDiscoveryStatus(status)</p>
+<p>​    {</p>
+<p>​      services_discovered=status;</p>
+<p>​      document.getElementById(‘status_discovered’).innerHTML=status;</p>
+<p>​    }</p>
+<p>​    function resetUI()</p>
+<p>​    {</p>
+<p>​      setConnectedStatus(false);</p>
+<p>​    }</p>
+<p>​    </p>
+<p>​    function discoverSvcsAndChars()  //在第5课基础上添加的函数</p>
+<p>​    { </p>
+<p>​      console.log(“discoverSvcsAndChars server=” + connected_server); </p>
+<p>​      connected_server.getPrimaryServices()</p>
+<p>​      .then(services =&gt; </p>
+<p>​      {  </p>
+<p>​          has_accelerometer_service = false;  </p>
+<p>​          has_led_service = false;  </p>
+<p>​          has_device_information_service = false; </p>
+<p>​          has_temperature_service= false;</p>
+<p>​          services_discovered = 0;  </p>
+<p>​          service_count = services.length;  </p>
+<p>​          console.log(“Got “ + service_count + “ services”); </p>
+<p>​    </p>
+<p>​          services.forEach(service =&gt; </p>
+<p>​          {   </p>
+<p>​            if (service.uuid == ACCELEROMETER_SERVICE)</p>
+<p>​            {   </p>
+<p>​              has_accelerometer_service = true;  </p>
+<p>​            }  </p>
+<p>​            if (service.uuid == LED_SERVICE) </p>
+<p>​            {   </p>
+<p>​              has_led_service = true;   </p>
+<p>​            }   </p>
+<p>​            if (service.uuid == DEVICE_INFORMATION_SERVICE) </p>
+<p>​            {   </p>
+<p>​              has_device_information_service = true;   </p>
+<p>​            } </p>
+<p>​            if (service.uuid == TEMPERATURE_SERVICE) //温度</p>
+<p>​            {   </p>
+<p>​              has_temperature_service = true;   </p>
+<p>​            }    </p>
+<p>​            console.log(‘Getting Characteristics for service ‘ + service.uuid);   </p>
+<p>​            service.getCharacteristics()</p>
+<p>​            .then(characteristics =&gt; </p>
+<p>​            {   </p>
+<p>​              console.log(‘&gt; Service: ‘ + service.uuid);   </p>
+<p>​              services_discovered++;   </p>
+<p>​              characteristics_discovered = 0;   </p>
+<p>​              characteristic_count = characteristics.length;   </p>
+<p>​              characteristics.forEach(characteristic =&gt; </p>
+<p>​              {    </p>
+<p>​                characteristics_discovered++;    </p>
+<p>​                console.log(‘&gt;&gt; Characteristic: ‘ + characteristic.uuid);    </p>
+<p>​                if (characteristic.uuid == ACCELEROMETER_DATA)</p>
+<p>​                {    </p>
+<p>​                  accelerometer_data = characteristic;    </p>
+<p>​                  has_accelerometer_data = true;    </p>
+<p>​                }   </p>
+<p>​                if (characteristic.uuid == LED_MATRIX_STATE) </p>
+<p>​                {    </p>
+<p>​                  led_matrix_state = characteristic;    </p>
+<p>​                  has_led_matrix_state = true;    </p>
+<p>​                }    </p>
+<p>​                if (characteristic.uuid == MODEL_NUMBER_STRING) </p>
+<p>​                {    </p>
+<p>​                  model_number_string = characteristic;    </p>
+<p>​                  has_model_name_string = true;    </p>
+<p>​                }</p>
+<p>​                if(characteristic.uuid == TEM_TEMPERATURE) //温度</p>
+<p>​                {</p>
+<p>​                  tem_temperature = characteristic; </p>
+<p>​                  has_tem_temperature = true;</p>
+<p>​                }   </p>
+<p>​                if (services_discovered == service_count &amp;&amp; characteristics_discovered == characteristic_count) </p>
+<p>​                {    </p>
+<p>​                  console.log(“FINISHED DISCOVERY”); </p>
+<p>​                  setDiscoveryStatus(true);    </p>
+<p>​                  //setDiscoveryStatus(true);         </p>
+<p>​                }  </p>
+<p>​              });   </p>
+<p>​            });  </p>
+<p>​          }); </p>
+<p>​      });</p>
+<p>​    } </p>
+<p>​    function randomLEDs()  //第6课上添加</p>
+<p>​    { </p>
+<p>​      console.log(“randomLEDs”);  </p>
+<p>​      // state validation  </p>
+<p>​      if (!connected) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: Discover and connect to a device before using this function”);   </p>
+<p>​        return;  </p>
+<p>​      }  </p>
+<p>​      if (!services_discovered) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: Service discovery has not yet completed”);   </p>
+<p>​        return; </p>
+<p>​      }  </p>
+<p>​      if (!has_led_service) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: The connected device does not contain the LED service”);   </p>
+<p>​        return; </p>
+<p>​      }  </p>
+<p>​      if (!has_led_matrix_state) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: The connected device does not contain the LED matrix state characteristic”);   </p>
+<p>​        return;  </p>
+<p>​      }  </p>
+<p>​      var led_array = [0, 0, 0, 0, 0];  </p>
+<p>​       // Math.random():0~1 Math.floor(x):返回小于等于x的最大整数</p>
+<p>​      led_array[0] =0; </p>
+<p>​      led_array[1] = 27;  </p>
+<p>​      led_array[2] = 31;  </p>
+<p>​      led_array[3] = 14;  </p>
+<p>​      led_array[4] = 4;</p>
+<p>​      </p>
+<p>​      var led_matrix_data = new Uint8Array(led_array); </p>
+<p>​      led_matrix_state.writeValue(led_matrix_data.buffer)</p>
+<p>​      .then(_ =&gt; {  </p>
+<p>​        console.log(‘LED matrix state changed’); </p>
+<p>​        }) </p>
+<p>​      .catch(error =&gt; {  </p>
+<p>​        console.log(‘Error: ‘ + error);  </p>
+<p>​        alert(‘Error: ‘ + error);  return; </p>
+<p>​        }); </p>
+<p>​    } </p>
+<p>​    function readModelNumber() </p>
+<p>​    { </p>
+<p>​      console.log(“readModelNumber”);  </p>
+<p>​      // state validation  </p>
+<p>​      if (!connected) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: Discover and connect to a device before using this function”);   </p>
+<p>​        return;  </p>
+<p>​      }  </p>
+<p>​      if (!services_discovered) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: Service discovery has not yet completed”);   </p>
+<p>​        return;  </p>
+<p>​      }  </p>
+<p>​      if (!has_device_information_service) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: The connected device does not contain the device information service”);   </p>
+<p>​        return;  </p>
+<p>​      }  </p>
+<p>​      if (!has_model_name_string) </p>
+<p>​      {   </p>
+<p>​        alert(“Error: The connected device does not contain the model name string characteristic”);   </p>
+<p>​        return;  </p>
+<p>​      }  </p>
+<p>​      </p>
+<p>​      model_number_string.readValue() </p>
+<p>​      .then(value =&gt; {  </p>
+<p>​        data = new Uint8Array(value.buffer);  </p>
+<p>​        model_number_string = new TextDecoder(“utf-8”).decode(data); </p>
+<p>​        console.log(model_number_string);  </p>
+<p>​        document.getElementById(“model_number”).innerHTML = model_number_string; </p>
+<p>​        }) </p>
+<p>​      .catch(error =&gt; { </p>
+<p>​        console.log(‘Error: ‘ + error);  </p>
+<p>​        alert(‘Error: ‘ + error);  </p>
+<p>​        return; </p>
+<p>​        }); </p>
+<p>​      }   </p>
+<p>​    </script></p>
+  <meta name="generator" content="Hexo 4.2.0"></head>
+
+  <body>
+
+<p>​    <h2> Status</p>
+<p>​    </h2></p>
+<pre><code>&lt;table border=&quot;1&quot;&gt;</code></pre><p>​        <tr></p>
+<p>​          <td>   <b>Connected</b>  </td></p>
+<p>​          <td>   <b>Service Discovery Completed</b>  </td></p>
+<p>​        </tr></p>
+<p>​        <tr></p>
+<p>​          <td id="status_connected"> false </td></p>
+<p>​          <td id="status_discovered"> false </td></p>
+<p>​        </tr></p>
+<p>​      </table></p>
+<p>​      <hr></p>
+<p>​    <h2></p>
+<p>​      Device Discovery or Disconnect</p>
+<p>​    </h2></p>
+<p>​    <button id = "btn_scan" onclick="discoverOrdisconnectDevices()">Start scan</button></p>
+<p>​    <hr></p>
+<p>​    <h2>Reading and Writing</h2></p>
+<p>​    <h3>Write Characteristic - Randomise Lights</h3> </p>
+<p>​    <button id="btn_write" onclick="randomLEDs()">Randomise LEDs</button></p>
+<p>​    <h3>Read Characteristic - Model number</h3> </p>
+<p>​    <button id="btn_read" onclick="readModelNumber()">Read Model number</button> </p>
+<pre><code>&lt;div id=&quot;model_number&quot;&gt;&lt;/div&gt;</code></pre><p>​    <hr></p>
+  </body>
+
+</html>
+
+<p>打开<a href="https://makecode.microbit.org/v0/89975-20684-84568-20127" target="_blank" rel="noopener">此处连接</a>点击编辑按钮，在里面添加蓝牙温度服务如下图：</p>
+<p><img src="/1.1.png" alt="0.1"></p>
+<p><img src="/1.3.png" alt="0.1"></p>
+<p><img src="/1.2.png" alt="0.1"></p>
 
           
         
@@ -391,7 +703,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/16/microbit/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/16/%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%20/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="zhaoman">
@@ -410,7 +722,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/06/16/microbit/" itemprop="url">microbit</a></h1>
+                <a class="post-title-link" href="/2020/06/16/%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%20/" itemprop="url">设备连接 </a></h1>
         
 
         <div class="post-meta">
@@ -441,8 +753,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/06/16/microbit/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2020/06/16/microbit/" itemprop="commentCount"></span>
+                <a href="/2020/06/16/%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%20/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2020/06/16/%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%20/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -476,7 +788,7 @@
 <p><img src="/image/0.2.png" alt="0.2"></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2020/06/16/microbit/#more" rel="contents">
+            <a class="btn" href="/2020/06/16/%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%20/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
